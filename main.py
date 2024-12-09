@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.responses import RedirectResponse
 
 from schemas.quiz import QuizzesPresentation, Question, Quiz
 from schemas.answer import Answer, AnswerEvaluated
@@ -7,6 +8,10 @@ import service as service
 
 
 app = FastAPI()
+
+@app.get('/')
+async def redirect_to_docs():
+    return RedirectResponse('/docs');
 
 
 @app.get('/quizzes', response_model=list[QuizzesPresentation])
