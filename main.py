@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
+from fastapi.staticfiles import StaticFiles
 
 from schemas.quiz import QuizzesPresentation, Question, Quiz
 from schemas.answer import Answer, AnswerEvaluated
@@ -8,6 +9,8 @@ import service as service
 
 
 app = FastAPI()
+
+app.mount("/images", StaticFiles(directory='images'), name='images')
 
 @app.get('/')
 async def redirect_to_docs():
