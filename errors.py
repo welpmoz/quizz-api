@@ -23,10 +23,4 @@ def handle_common_errors(exc: Exception):
             detail=exc.msg,
         )
     
-    if isinstance(exc, Duplicate):
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=exc.msg,
-        )
-    
     raise exc
