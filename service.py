@@ -1,30 +1,36 @@
-from schemas.quiz import Question, QuizzesPresentation
+from schemas.quiz import Question, QuizzesPresentation, Quiz
 from schemas.answer import Answer, AnswerEvaluated
 
 from database import database
 
-async def get_questions(title_quiz: str) -> list[Question]:
-    requested_quiz = [
-        quiz
-        for quiz in database.quizzes
-        if quiz.title == title_quiz
-    ][0]
+from errors import Format, Missing
 
-    return requested_quiz
+async def get_questions(title_quiz: str) -> Quiz:
+    try:
+        requested_quiz = [
+            quiz
+            for quiz in database.quizzes
+            if quiz.title.lower() == title_quiz.lower()
+        ][0]
 
+        return requested_quiz
+    except IndexError:
+        raise Missing(msg=f'The quiz for {title_quiz} topic does not exists yet!')
 
 async def get_quizzes() -> list[QuizzesPresentation]:
     return database.quizzes
 
 
 async def get_question(title_quiz: str, number_question: int) -> Question:
-    requested_question = [
-        quiz
-        for quiz in database.quizzes
-        if quiz.title == title_quiz
-    ][0]
+    if number_question <= 0:
+        raise Format(msg='Questions begins with number 1')
+    
+    requested_quiz = await get_questions(title_quiz)
 
-    return requested_question.questions[number_question]
+    try:
+        return requested_quiz.questions[number_question - 1]
+    except IndexError:
+        raise Missing(f'The quiz {title_quiz} only have {len(requested_quiz.questions)} questions')
 
 
 async def check_answer(answer: Answer) -> AnswerEvaluated:

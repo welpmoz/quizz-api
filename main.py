@@ -1,4 +1,6 @@
-from fastapi import FastAPI
+from pydantic import Field
+
+from fastapi import FastAPI, Query
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -7,6 +9,7 @@ from schemas.answer import Answer, AnswerEvaluated
 
 import service as service
 
+from errors import handle_common_errors
 
 app = FastAPI()
 
@@ -19,19 +22,35 @@ async def redirect_to_docs():
 
 @app.get('/quizzes', response_model=list[QuizzesPresentation])
 async def get_quizzes():
-    return await service.get_quizzes()
+    try:
+        return await service.get_quizzes()
+    except Exception as exc:
+        handle_common_errors(exc)
+
 
 
 @app.get('/quizzes/{titleQuiz}', response_model=Quiz)
 async def get_quiz(titleQuiz: str):
-    return await service.get_questions(titleQuiz)
+    try:
+        return await service.get_questions(titleQuiz)
+    except Exception as exc:
+        handle_common_errors(exc)
 
 
 @app.get('/quizzes/{titleQuiz}/questions', response_model=Question)
-async def get_question_for_exam(titleQuiz: str, numberQuestion: int = 1):
-    return await service.get_question(titleQuiz, numberQuestion)
+async def get_question_for_exam(
+    titleQuiz: str,
+    numberQuestion: int,
+):
+    try:
+        return await service.get_question(titleQuiz, numberQuestion)
+    except Exception as exc:
+        handle_common_errors(exc)
 
 
 @app.post('/answer', response_model=AnswerEvaluated)
 async def check_answer(answer: Answer):
-    return await service.check_answer(answer)
+    try:
+        return await service.check_answer(answer)
+    except Exception as exc:
+        handle_common_errors(exc)
