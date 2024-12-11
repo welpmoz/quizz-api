@@ -1,8 +1,7 @@
-from pydantic import Field
-
-from fastapi import FastAPI, Query
+from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 
 from schemas.quiz import QuizzesPresentation, Question, Quiz
 from schemas.answer import Answer, AnswerEvaluated
@@ -12,6 +11,16 @@ import service as service
 from errors import handle_common_errors
 
 app = FastAPI()
+
+origins = ['*']
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=['*'],
+    allow_headers=['*'],
+)
 
 app.mount("/images", StaticFiles(directory='images'), name='images')
 
@@ -40,7 +49,7 @@ async def get_quiz(titleQuiz: str):
 @app.get('/quizzes/{titleQuiz}/questions', response_model=Question)
 async def get_question_for_exam(
     titleQuiz: str,
-    numberQuestion: int,
+    numberQuestion: int = 1,
 ):
     try:
         return await service.get_question(titleQuiz, numberQuestion)
